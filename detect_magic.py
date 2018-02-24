@@ -122,8 +122,8 @@ def main(args):
 
     imgpath = args.image_file
  
-    #savepath= '/Data/caffe/data/Volley/testImages/rawFrames_detections/'
-    savepath= '/Data/caffe/data/Volley/testImages/cropFrames_detections/'
+    savepath= '/Data/caffe/data/Volley/testImages/rawFrames_detections/'
+    #savepath= '/Data/caffe/data/Volley/testImages/cropFrames_detections/'
 
     if not os.path.exists(savepath):
        os.makedirs(savepath)
@@ -179,8 +179,8 @@ def parse_args():
     parser.add_argument('--model_weights',
                         default='/Data/caffe/models/Volley/1073img-model/SSD_300x300/'
                         'VGG_Volley_SSD_300x300_iter_60000.caffemodel')
-    #parser.add_argument('--image_file', default='/Data/caffe/data/Volley/testImages/rawFrames/')
-    parser.add_argument('--image_file', default='/Data/caffe/data/Volley/testImages/cropFrames/')
+    parser.add_argument('--image_file', default='/Data/caffe/data/Volley/testImages/rawFrames/')
+    #parser.add_argument('--image_file', default='/Data/caffe/data/Volley/testImages/cropFrames/')
 
     return parser.parse_args()
 
