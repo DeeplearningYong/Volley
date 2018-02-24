@@ -13,6 +13,8 @@ change save path accordingly:
 ```bash
 savepath= '/Data/caffe/data/Volley/testImages/rawFrames_detections/'
 savepath= '/Data/caffe/data/Volley/testImages/cropFrames_detections/'
+......
+python detect_magic.py
 ```
 
 
