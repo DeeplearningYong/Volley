@@ -118,16 +118,21 @@ def main(args):
                                args.model_def, args.model_weights,
                                args.image_resize, args.labelmap_file)
     
-    pdb.set_trace()
+    #pdb.set_trace()
 
-    filepath = args.image_file
-    with open(filepath) as fp:  
-       line = fp.readline()
-       cnt = 0
-       while line:
+    imgpath = args.image_file
+ 
+    #savepath= '/Data/caffe/data/Volley/testImages/rawFrames_detections/'
+    savepath= '/Data/caffe/data/Volley/testImages/cropFrames_detections/'
+
+    if not os.path.exists(savepath):
+       os.makedirs(savepath)
+
+    cnt = 0 
+    for filename in os.listdir(imgpath):     
 	   cnt += 1
-	   imagename = line.split()[0]
-	   img2det = '/Data/caffe/data/Volley/' + imagename
+	   imagename = filename
+	   img2det = imgpath + imagename
 	   print img2det
 
 	   result = detection.detect(img2det)
@@ -135,30 +140,32 @@ def main(args):
 
 	   img = Image.open(img2det)
 	   draw = ImageDraw.Draw(img)
-  	   dpfont = ImageFont.truetype("/Data/caffe/Fonts/Sans.ttf", 30)
+  	   dpfont = ImageFont.truetype("/Data/caffe/Fonts/Sans.ttf", 20)
 
   	   width, height = img.size
     	   #print width, height
 
+	   tmpstr = ''
            if len(result)>0:
+		   #pdb.set_trace()
      	  	   for item in result:
      		    	xmin = int(round(item[0] * width))
      		   	ymin = int(round(item[1] * height))
      		   	xmax = int(round(item[2] * width))
      		   	ymax = int(round(item[3] * height))
+			xcenter = xmin+ (xmax - xmin)/2
+			ycenter = ymin+ (ymax - ymin)/2 
      		   	draw.rectangle([xmin, ymin, xmax, ymax], outline=(255, 0, 0))
-     		   	draw.text([xmin, ymax], item[-1] + str(round(item[-2],2)), (255, 0, 0), font = dpfont)
+     		   	draw.text([xcenter, ycenter], item[-1] + str(round(item[-2],2)), (255, 0, 0), font = dpfont)
+			act_label = str(item[-1])
+			confidence = str(int(round(item[-2],2)*100))
+			tmpstr = tmpstr + act_label + confidence+ 'percent'
      		   	print item
      		   	print [xmin, ymin, xmax, ymax]
      		   	print [xmin, ymin], item[-1]
 
-		   savepath = '/Data/caffe/Results/detection/train/' + imagename 
-		   #savepath = '/Data/caffe/Results/detection/test/' + imagename
-
-	    	   img.save(savepath, 'JPEG')
-
-	   line = fp.readline()
-
+	   outpath = savepath + imagename.split('.')[0]+'_'+tmpstr+'.jpg'
+    	   img.save(outpath, 'JPEG')
 
 def parse_args():
     '''parse args'''
@@ -172,8 +179,8 @@ def parse_args():
     parser.add_argument('--model_weights',
                         default='/Data/caffe/models/Volley/1073img-model/SSD_300x300/'
                         'VGG_Volley_SSD_300x300_iter_60000.caffemodel')
-    parser.add_argument('--image_file', default='/Data/caffe/data/Volley/trainval.txt')
-    #parser.add_argument('--image_file', default='/Data/caffe/data/Volley/test.txt')
+    #parser.add_argument('--image_file', default='/Data/caffe/data/Volley/testImages/rawFrames/')
+    parser.add_argument('--image_file', default='/Data/caffe/data/Volley/testImages/cropFrames/')
 
     return parser.parse_args()
 
