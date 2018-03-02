@@ -1,0 +1,59 @@
+
+============ Debug the model with scaled img, small img =========
+1) identify incorrectly detected img, empty detection img
+2) hypothesis: anchor box not appropriate | resolution not enough |  
+3) good image, change sie, still work? bad image, change size, work now? 
+
+test img path defined in : /Data/caffe/data/Volley/debugModel.txt
+test imgs put into: /Data/caffe/data/Volely/bugs
+detetion results write into: /Data/caffe/data/Volley/bugs
+python examples/Volley/debug_volley.py
+
+1)MAC: move img to bugs ==> scp -i ~/.ssh/jeff_p3key * dli@54.70.93.83:/Data/caffe/data/Volley/bugs/
+2)Pick file to test: ==> nano data/Volley/debugModel.txt
+3)python examples/Volley/debug_volley.py  ==> get detections 
+4)Get detections back to MAC to view :==>  scp -i ~/.ssh/jeff_p3key dli@54.70.93.83:/Data/caffe/data/Volley/bugs/* ./
+
+=== plot net structure ==> python draw_net.py /Data/caffe/models/Volley/1073img-model/SSD_300x300/train.prototxt train.jpg
+=== Jupyter=> AWS: sudo jupyter notebook --allow-root =>ssh -i ~/.ssh/jeff_p3key -L 8000:localhost:8888 dli@54.70.93.83 ==> on MAC: http://localhost:8000 with token 
+====== For Jupyter: need run sudo ldconfig /usr/local/cuda/lib64 
+
+===============Prepare data for testing=================
+### Downoad random beach volley ball game video first 
+youtube-dl -i --format best https://www.youtube.com/watch?v=Q4X7HgIWNdg -o test.mp4
+
+### Change to 10 fps 
+ffmpeg -y -loglevel error -i test.mp4  -an -vf "setpts=1.25*PTS" -r 10 test_10fps.mp4
+
+### extract all frames from mp4
+ffmpeg -i "test_10fps.mp4" "frames/out-%06d.jpg"
+
+### count how many inside folder: 
+find . -type f | wc -l
+
+### If need to convert mp4 to avi
+ffmpeg -i random_10fps.mp4 -vcodec copy -acodec copy random_10fps.avi
+
+============================TRAIN MODEL========================
+step 1: bring data into data/Volley/Images and Labels folder
+step 2: create_list.sh => generate trainval, test, test-name-size 
+step 3: create_data.sh => create lmdb folder, and create soft links in examples/Volley
+step 4: turn off debug mode of caffe, then train model: python examples/Volley/ssd_volley.py
+
+Feb 8, 2018: Trained 3 models: 290 images 6k ssd; 1073imgs-model ssd; 575 img-model ssd with output from openpose 
+
+============================Python: Results/train and test for image only====================
+change image folder and savepath 
+nano examples/Volley/ssd_detect.py
+python examples/Volley/ssd_detect.py
+python examples/Volley/ssd_detect_pose.py  # detect with openpose output, write on original img
+
+============================C++ detection for images and video============================= 
+nano examples/ssd/ssd_detect.cpp & change filetype &  make -j8 again 
+
+const string& file_type = "image"; # only print to console; image files given in test_cpp.txt
+./build/examples/ssd/ssd_detect.bin ./models/Volley/1073img-model/SSD_300x300/deploy.prototxt ./models/Volley/1073img-model/SSD_300x300/VGG_Volley_SSD_300x300_iter_60000.caffemodel ./data/Volley/test_cpp.txt
+
+const string& file_type = "video"; 
+./build/examples/ssd/ssd_detect.bin ./models/Volley/1073img-model/SSD_300x300/deploy.prototxt ./models/Volley/1073img-model/SSD_300x300/VGG_Volley_SSD_300x300_iter_60000.caffemodel ./data/Volley/test_cppvideo.txt
+
