@@ -1,5 +1,7 @@
 ### From GPU Tesla V100 box
 
+### GPUbox_readme: readme file from GPUbox caffe folder, sync to home ubuntu 
+
 ### Function 1: Create list by group of action
 always 86% for training, 14% for testing 
 
